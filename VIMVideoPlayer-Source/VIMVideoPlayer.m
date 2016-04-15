@@ -72,23 +72,45 @@ static void *VideoPlayer_PlayerItemLoadedTimeRangesContext = &VideoPlayer_Player
     [self cancelFadeVolume];
 }
 
-- (instancetype)init
+
+- (instancetype)initWithAudioSessionCategory:(NSString *)category
 {
     self = [super init];
+    
     if (self)
     {
-        _volumeFadeDuration = DefaultVolumeFadeDuration;
-        _playableBufferLength = DefaultPlayableBufferLength;
-        
-        [self setupPlayer];
-        
-        [self addPlayerObservers];
-
-        [self setupAudioSession];
+        [self commonInitWithAudioSessionCategory:category];
     }
     
     return self;
 }
+
+
+- (instancetype)init
+{
+    self = [super init];
+    
+    if (self)
+    {
+        [self commonInitWithAudioSessionCategory:AVAudioSessionCategoryPlayback];
+    }
+    
+    return self;
+}
+
+
+- (void)commonInitWithAudioSessionCategory:(NSString *)category
+{
+    _volumeFadeDuration = DefaultVolumeFadeDuration;
+    _playableBufferLength = DefaultPlayableBufferLength;
+    
+    [self setupPlayer];
+    
+    [self addPlayerObservers];
+    
+    [self setupAudioSession:category];
+}
+
 
 #pragma mark - Setup
 
@@ -104,13 +126,18 @@ static void *VideoPlayer_PlayerItemLoadedTimeRangesContext = &VideoPlayer_Player
     [self enableAirplay];
 }
 
-- (void)setupAudioSession
+- (void)setupAudioSession:(NSString *)category
 {
     NSError *categoryError = nil;
-    BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&categoryError];
-    if (!success)
+    BOOL success = YES;
+    
+    if ([[AVAudioSession sharedInstance].category isEqual:category] == NO)
     {
-        NSLog(@"Error setting audio session category: %@", categoryError);
+        success = [[AVAudioSession sharedInstance] setCategory:category error:&categoryError];
+        if (!success)
+        {
+            NSLog(@"Error setting audio session category: %@", categoryError);
+        }
     }
     
     NSError *activeError = nil;

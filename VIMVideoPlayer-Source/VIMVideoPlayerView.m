@@ -44,7 +44,7 @@
     
     if (self)
     {
-        [self commonInit];
+        [self commonInitWithAudioSessionCategory:AVAudioSessionCategoryPlayback];
     }
     
     return self;
@@ -56,15 +56,27 @@
     
     if (self)
     {
-        [self commonInit];
+        [self commonInitWithAudioSessionCategory:AVAudioSessionCategoryPlayback];
     }
     
     return self;
 }
 
-- (void)commonInit
+- (instancetype)initWithAudioSessionCategory:(NSString *)category
 {
-    VIMVideoPlayer *player = [[VIMVideoPlayer alloc] init];
+    self = [super initWithFrame:CGRectZero];
+    
+    if (self)
+    {
+        [self commonInitWithAudioSessionCategory:category];
+    }
+    
+    return self;
+}
+
+- (void)commonInitWithAudioSessionCategory:(NSString *)category
+{
+    VIMVideoPlayer *player = [[VIMVideoPlayer alloc] initWithAudioSessionCategory:category];
     
     [self setPlayer:player];
 }
